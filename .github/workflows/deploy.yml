@@ -1,24 +1,32 @@
-name: Deploy Website
+name: Deploy to Server
 
 on:
   push:
     branches:
-      - main
+      - main  # replace with your branch name if different
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
+    - name: Checkout Repository
       uses: actions/checkout@v2
+
+    - name: Decode SSH Key
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" | base64 --decode > $HOME/.ssh/deployment_key
+        chmod 600 $HOME/.ssh/deployment_key
 
     - name: Deploy to Server
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.PORT }}
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: $HOME/.ssh/deployment_key
+        port: ${{ secrets.SERVER_PORT }}  # Optional if you're using the default SSH port (22)
         script: |
           cd /var/www/eroesist.tech
-          git pull
+          git pull origin main  # replace with your branch name if different
