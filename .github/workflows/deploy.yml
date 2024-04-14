@@ -20,4 +20,4 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} 'cd /var/www/eroesist.tech && git pull origin main'
+          ssh -vvv ${{ secrets.USERNAME }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} 'cd /var/www/eroesist.tech && git pull origin main'
