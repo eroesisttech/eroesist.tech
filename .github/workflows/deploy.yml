@@ -1,35 +1,23 @@
-name: Deploy to Server
+name: Deploy to VPS
 
 on:
   push:
     branches:
-      - main  # Replace 'main' with your default branch if it's different
+      - main  # or whatever branch you want to trigger the deployment
 
 jobs:
-  deployment:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Create SSH directory
-      run: mkdir -p $HOME/.ssh
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Decode SSH Key
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      run: |
-        chmod 600 $HOME/.ssh/deployment_key
-
-    - name: Deploy to Server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.PORT }} # Optional: if you're using a port other than the ssh default of 22
-        script: |
-          cd /path/to/your/deployment/directory
-          git pull origin main
-          # Any other deployment steps like restarting services, etc.
+      - name: Deploy to VPS
+        run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} 'cd /var/www/eroesist.tech && git pull origin main'
